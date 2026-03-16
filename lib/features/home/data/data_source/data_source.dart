@@ -11,6 +11,6 @@ class HomeDataSourceImpl implements HomeDataSource {
 
   @override
   Places searchPlaces(String query) async {
-    return nominatim.searchByName(query: query, limit: 5);
+    return nominatim.searchByName(query: query, limit: 5, countryCodes: ['eg']);
   }
 }
