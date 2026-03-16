@@ -47,6 +47,7 @@ dependencies:
   flutter_svg: ^2.2.4
   fluttertoast: ^9.0.0
   dartz: ^0.10.1
+  google_maps_flutter: ^2.15.0
 
 dev_dependencies:
   flutter_test:
