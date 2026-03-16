@@ -12,7 +12,7 @@ android {
     namespace = "com.example.go"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-
+    useLibrary("org.apache.http.legacy")  
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
