@@ -26,6 +26,7 @@ class MapState extends State<Map> {
         return Scaffold(
           body: GoogleMap(
             style: state.mapStyle,
+            markers: state.markers,
             initialCameraPosition: _initialCameraPosition,
             onMapCreated: (GoogleMapController controller) =>
                 cubit.onMapCreated(controller),

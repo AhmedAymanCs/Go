@@ -10,12 +10,14 @@ class HomeState extends Equatable {
   final String mapStyle;
   final GoogleMapController? controller;
   final List<Place> places;
+  final Set<Marker> markers;
   const HomeState({
     this.status = HomeStatus.initial,
     this.error = '',
     this.controller,
     this.mapStyle = '',
     this.places = const [],
+    this.markers = const {},
   });
   HomeState copyWith({
     HomeStatus? status,
@@ -23,6 +25,7 @@ class HomeState extends Equatable {
     GoogleMapController? controller,
     String? mapStyle,
     List<Place>? places,
+    Set<Marker>? markers,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -30,9 +33,17 @@ class HomeState extends Equatable {
       controller: controller ?? this.controller,
       mapStyle: mapStyle ?? this.mapStyle,
       places: places ?? this.places,
+      markers: markers ?? this.markers,
     );
   }
 
   @override
-  List<Object?> get props => [status, error, controller, mapStyle, places];
+  List<Object?> get props => [
+    status,
+    error,
+    controller,
+    mapStyle,
+    places,
+    markers,
+  ];
 }

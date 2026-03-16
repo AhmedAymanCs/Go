@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/di/service_locator.dart';
 import 'package:go/core/widgets/cutom_form_field.dart';
 import 'package:go/core/widgets/logo_with_text.dart';
-import 'package:go/features/home/data/models/destnation_model.dart';
 import 'package:go/features/home/data/repository/repo.dart';
 import 'package:go/features/home/logic/cubit.dart';
 import 'package:go/features/home/logic/states.dart';
 import 'package:go/features/home/presentation/shared_widgets.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -37,7 +38,11 @@ class _HomePageState extends State<HomePage> {
     return BlocProvider(
       create: (context) => HomeCubit(getIt<HomeRepository>())..init(context),
       child: BlocConsumer<HomeCubit, HomeState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state.status == HomeStatus.error) {
+            Fluttertoast.showToast(msg: state.error);
+          }
+        },
         builder: (context, state) {
           final cubit = context.read<HomeCubit>();
           return Scaffold(
@@ -85,9 +90,9 @@ class _HomePageState extends State<HomePage> {
                                 return PlaceItem(
                                   placeName: state.places[index].displayName,
                                   onTap: () => cubit.moveTo(
-                                    DestinationModel(
-                                      lat: state.places[index].lat,
-                                      lon: state.places[index].lon,
+                                    LatLng(
+                                      state.places[index].lat,
+                                      state.places[index].lon,
                                     ),
                                   ),
                                 );
