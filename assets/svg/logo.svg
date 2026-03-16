@@ -1,0 +1,30 @@
+<svg width="680" height="320" viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="clip1">
+      <circle cx="200" cy="160" r="90"/>
+    </clipPath>
+  </defs>
+
+  <circle cx="200" cy="160" r="90" fill="#1A1F3C"/>
+
+  <path d="M130 140 Q160 110 200 115" fill="none" stroke="#3DD68C" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <path d="M125 160 Q155 135 200 138" fill="none" stroke="#3DD68C" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <path d="M128 180 Q158 162 200 162" fill="none" stroke="#3DD68C" stroke-width="4" stroke-linecap="round"/>
+
+  <text x="175" y="195" font-family="Arial Black, sans-serif" font-size="88" font-weight="900" fill="#FFFFFF" text-anchor="middle">G</text>
+
+  <path d="M205 158 L240 158 L240 180 Q220 195 200 195" fill="none" stroke="#3DD68C" stroke-width="6" stroke-linecap="round"/>
+
+  <circle cx="248" cy="158" r="7" fill="#3DD68C"/>
+  <polygon points="248,145 262,158 248,171" fill="#3DD68C"/>
+
+  <text x="320" y="145" font-family="Arial Black, sans-serif" font-size="72" font-weight="900" fill="#1A1F3C" text-anchor="start">GO</text>
+
+  <rect x="320" y="158" width="120" height="5" rx="2" fill="#3DD68C"/>
+
+  <text x="320" y="195" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#6B7280" text-anchor="start">ride smart. arrive fast.</text>
+
+  <circle cx="320" cy="220" r="3" fill="#3DD68C"/>
+  <circle cx="332" cy="220" r="3" fill="#3DD68C" opacity="0.6"/>
+  <circle cx="344" cy="220" r="3" fill="#3DD68C" opacity="0.3"/>
+</svg>
