@@ -48,6 +48,7 @@ dependencies:
   fluttertoast: ^9.0.0
   dartz: ^0.10.1
   google_maps_flutter: ^2.15.0
+  osm_nominatim: ^4.0.1
 
 dev_dependencies:
   flutter_test:

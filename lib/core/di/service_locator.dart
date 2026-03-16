@@ -3,6 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go/core/constants/app_constants.dart';
+import 'package:go/features/home/data/data_source/data_source.dart';
+import 'package:go/features/home/data/repository/repo.dart';
+import 'package:osm_nominatim/osm_nominatim.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go/core/database/local/secure_storage/secure_storage_helper.dart';
 import 'package:go/features/auth/data/data_source/auth_data_source.dart';
@@ -15,6 +19,7 @@ void intiSetupLocator() {
   _setupAuthRepositoryLocator();
   _setupFirestoreServiceLocator();
   _setupSupabaseServiceLocator();
+  _setupHomeServiceLocator();
 }
 
 void _setupSecureStorageServiceLocator() {
@@ -56,4 +61,15 @@ Future<void> _setupSupabaseServiceLocator() async {
   await Supabase.initialize(url: url, anonKey: apiKey);
 
   getIt.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
+}
+
+void _setupHomeServiceLocator() {
+  getIt.registerFactory<HomeRepository>(
+    () => HomeRepositoryImpl(getIt<HomeDataSource>()),
+  );
+  getIt.registerFactory<HomeDataSource>(
+    () => HomeDataSourceImpl(
+      Nominatim(userAgent: AppConstants.nominatimUserAgent),
+    ),
+  );
 }
