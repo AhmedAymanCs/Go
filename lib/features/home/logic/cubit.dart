@@ -33,10 +33,14 @@ class HomeCubit extends Cubit<HomeState> {
     await getCurrentStreamLocation();
   }
 
-  void moveTo(LatLng destination, {bool isCurrentLocation = false}) {
+  void moveTo(
+    LatLng destination, {
+    bool isCurrentLocation = false,
+    double zoom = 16,
+  }) {
     state.controller!.animateCamera(
       CameraUpdate.newCameraPosition(
-        CameraPosition(target: destination, zoom: 16),
+        CameraPosition(target: destination, zoom: zoom),
       ),
     );
     if (isCurrentLocation) {
@@ -123,7 +127,7 @@ class HomeCubit extends Cubit<HomeState> {
     required String placeName,
   }) async {
     if (state.position == null) return;
-
+    moveTo(destination, zoom: 12);
     final res = await _homeRepository.getRouteCoordinates(
       destination: destination,
       position: LatLng(state.position!.latitude, state.position!.longitude),

@@ -59,6 +59,7 @@ class _HomePageState extends State<HomePage> {
                         state.position!.longitude,
                       ),
                       isCurrentLocation: true,
+                      zoom: 17,
                     ),
                     icon: Icon(Icons.gps_fixed, color: Colors.white),
                   ),
