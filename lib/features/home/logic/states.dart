@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 
@@ -11,6 +12,9 @@ class HomeState extends Equatable {
   final GoogleMapController? controller;
   final List<Place> places;
   final Set<Marker> markers;
+  final Position? position;
+  final bool isPermissionGranted;
+  final BitmapDescriptor currentLocationIcon;
   const HomeState({
     this.status = HomeStatus.initial,
     this.error = '',
@@ -18,6 +22,9 @@ class HomeState extends Equatable {
     this.mapStyle = '',
     this.places = const [],
     this.markers = const {},
+    this.position,
+    this.isPermissionGranted = false,
+    this.currentLocationIcon = BitmapDescriptor.defaultMarker,
   });
   HomeState copyWith({
     HomeStatus? status,
@@ -26,6 +33,9 @@ class HomeState extends Equatable {
     String? mapStyle,
     List<Place>? places,
     Set<Marker>? markers,
+    Position? position,
+    bool? isPermissionGranted,
+    BitmapDescriptor? currentLocationIcon,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -34,6 +44,9 @@ class HomeState extends Equatable {
       mapStyle: mapStyle ?? this.mapStyle,
       places: places ?? this.places,
       markers: markers ?? this.markers,
+      position: position ?? this.position,
+      isPermissionGranted: isPermissionGranted ?? this.isPermissionGranted,
+      currentLocationIcon: currentLocationIcon ?? this.currentLocationIcon,
     );
   }
 
@@ -45,5 +58,8 @@ class HomeState extends Equatable {
     mapStyle,
     places,
     markers,
+    position,
+    isPermissionGranted,
+    currentLocationIcon,
   ];
 }

@@ -49,6 +49,20 @@ class _HomePageState extends State<HomePage> {
             body: Stack(
               children: [
                 const Map(),
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: IconButton(
+                    onPressed: () => cubit.moveTo(
+                      LatLng(
+                        state.position!.latitude,
+                        state.position!.longitude,
+                      ),
+                      isCurrentLocation: true,
+                    ),
+                    icon: Icon(Icons.gps_fixed, color: Colors.white),
+                  ),
+                ),
                 DraggableScrollableSheet(
                   initialChildSize: 0.5,
                   minChildSize: 0.25,
