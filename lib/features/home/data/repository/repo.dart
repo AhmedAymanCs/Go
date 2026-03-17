@@ -10,6 +10,7 @@ abstract class HomeRepository {
   ServerResponse<RouteModel> getRouteCoordinates({
     required LatLng destination,
     required LatLng position,
+    required String placeName,
   });
 }
 
@@ -31,11 +32,13 @@ class HomeRepositoryImpl implements HomeRepository {
   ServerResponse<RouteModel> getRouteCoordinates({
     required LatLng destination,
     required LatLng position,
+    required String placeName,
   }) async {
     try {
       final res = await _homeDataSource.getRouteCoordinates(
         destination: destination,
         position: position,
+        placeName: placeName,
       );
       return Right(res);
     } catch (e) {

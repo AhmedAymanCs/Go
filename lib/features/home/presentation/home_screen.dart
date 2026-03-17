@@ -91,9 +91,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             state.route == null
                                 ? LogoWithText(text: '')
-                                : Text(
-                                    state.route!.distanceKm.toStringAsFixed(2),
-                                  ),
+                                : RouteItem(route: state.route!),
                             const SizedBox(height: 8),
                             CustomFormField(
                               hint: 'Where do you want to go?',
@@ -113,6 +111,7 @@ class _HomePageState extends State<HomePage> {
                                       state.places[index].lat,
                                       state.places[index].lon,
                                     ),
+                                    placeName: state.places[index].displayName,
                                   ),
                                 );
                               },

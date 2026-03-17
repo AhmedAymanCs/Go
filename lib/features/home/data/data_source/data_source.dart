@@ -1,3 +1,4 @@
+import 'package:go/core/constants/app_constants.dart';
 import 'package:go/core/utils/typedef.dart';
 import 'package:go/features/home/data/models/route_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -9,6 +10,7 @@ abstract class HomeDataSource {
   Future<RouteModel> getRouteCoordinates({
     required LatLng destination,
     required LatLng position,
+    required String placeName,
   });
 }
 
@@ -30,6 +32,7 @@ class HomeDataSourceImpl implements HomeDataSource {
   Future<RouteModel> getRouteCoordinates({
     required LatLng destination,
     required LatLng position,
+    required String placeName,
   }) async {
     final response = await _ors.directionsRouteGeoJsonGet(
       startCoordinate: ORSCoordinate(
@@ -44,14 +47,16 @@ class HomeDataSourceImpl implements HomeDataSource {
 
     final summary =
         response.features[0].properties['summary'] as Map<String, dynamic>;
-
+    final double distanceKm = (summary['distance'] as num).toDouble() / 1000;
     return RouteModel(
+      placeName: placeName,
       points: response.features[0].geometry.coordinates
           .expand((e) => e)
           .map((e) => LatLng(e.latitude, e.longitude))
           .toList(),
-      distanceKm: (summary['distance'] as num).toDouble() / 1000,
-      durationMin: (summary['duration'] as num).toDouble() / 60,
+      distanceKm: distanceKm,
+      price: distanceKm * AppConstants.pricePerKm,
+      durationMin: (summary['duration'] as num).toDouble() / 600,
     );
   }
 }

@@ -118,12 +118,16 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(markers: updatedMarkers));
   }
 
-  Future<void> drawRoute(LatLng destination) async {
+  Future<void> drawRoute(
+    LatLng destination, {
+    required String placeName,
+  }) async {
     if (state.position == null) return;
 
     final res = await _homeRepository.getRouteCoordinates(
       destination: destination,
       position: LatLng(state.position!.latitude, state.position!.longitude),
+      placeName: placeName,
     );
     res.fold(
       (error) => emit(state.copyWith(error: error)),
