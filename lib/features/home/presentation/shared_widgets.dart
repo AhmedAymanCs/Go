@@ -21,7 +21,7 @@ class MapState extends State<Map> {
         final cubit = context.read<HomeCubit>();
         return Scaffold(
           body: GoogleMap(
-            onTap: (latLng) async {
+            onLongPress: (latLng) async {
               cubit.addMarker(latLng);
               cubit.drawRoute(
                 latLng,

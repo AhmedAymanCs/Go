@@ -100,7 +100,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   Future<void> _loadCurrentLocationIcon() async {
     final icon = await BitmapDescriptor.asset(
-      const ImageConfiguration(size: Size(60, 60)),
+      const ImageConfiguration(size: Size(48, 48), devicePixelRatio: 2.0),
       ImageManager.currentLocation,
     );
     emit(state.copyWith(currentLocationIcon: icon));
@@ -117,6 +117,7 @@ class HomeCubit extends Cubit<HomeState> {
         markerId: const MarkerId('current_location'),
         position: latLng,
         icon: state.currentLocationIcon,
+        anchor: const Offset(0.5, 0.5),
       ),
     };
 
@@ -128,6 +129,7 @@ class HomeCubit extends Cubit<HomeState> {
     required String placeName,
   }) async {
     if (state.position == null) return;
+    emit(state.copyWith(polylines: {}));
     moveTo(destination, zoom: 12);
     final res = await _homeRepository.getRouteCoordinates(
       RoutePrams(
