@@ -89,7 +89,11 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
-                            LogoWithText(text: ''),
+                            state.route == null
+                                ? LogoWithText(text: '')
+                                : Text(
+                                    state.route!.distanceKm.toStringAsFixed(2),
+                                  ),
                             const SizedBox(height: 8),
                             CustomFormField(
                               hint: 'Where do you want to go?',

@@ -1,12 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:go/core/utils/typedef.dart';
 import 'package:go/features/home/data/data_source/data_source.dart';
+import 'package:go/features/home/data/models/route_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 
 abstract class HomeRepository {
   ServerResponse<List<Place>> searchPlaces(String query);
-  ServerResponse<List<LatLng>> getRouteCoordinates({
+  ServerResponse<RouteModel> getRouteCoordinates({
     required LatLng destination,
     required LatLng position,
   });
@@ -27,7 +28,7 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  ServerResponse<List<LatLng>> getRouteCoordinates({
+  ServerResponse<RouteModel> getRouteCoordinates({
     required LatLng destination,
     required LatLng position,
   }) async {

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go/features/home/data/models/route_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 
@@ -17,6 +18,7 @@ class HomeState extends Equatable {
   final BitmapDescriptor currentLocationIcon;
   final bool hasMoved;
   final Set<Polyline> polylines;
+  final RouteModel? route;
   const HomeState({
     this.status = HomeStatus.initial,
     this.error = '',
@@ -29,6 +31,7 @@ class HomeState extends Equatable {
     this.currentLocationIcon = BitmapDescriptor.defaultMarker,
     this.hasMoved = false,
     this.polylines = const {},
+    this.route,
   });
   HomeState copyWith({
     HomeStatus? status,
@@ -42,6 +45,7 @@ class HomeState extends Equatable {
     BitmapDescriptor? currentLocationIcon,
     bool? hasMoved,
     Set<Polyline>? polylines,
+    RouteModel? route,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -55,6 +59,7 @@ class HomeState extends Equatable {
       currentLocationIcon: currentLocationIcon ?? this.currentLocationIcon,
       hasMoved: hasMoved ?? this.hasMoved,
       polylines: polylines ?? this.polylines,
+      route: route ?? this.route,
     );
   }
 
@@ -71,5 +76,6 @@ class HomeState extends Equatable {
     currentLocationIcon,
     hasMoved,
     polylines,
+    route,
   ];
 }

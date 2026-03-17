@@ -132,11 +132,12 @@ class HomeCubit extends Cubit<HomeState> {
           polylines: {
             Polyline(
               polylineId: const PolylineId('route'),
-              points: coordinates,
+              points: coordinates.points,
               color: ColorManager.greenAccent,
               width: 5,
             ),
           },
+          route: coordinates,
         ),
       ),
     );
