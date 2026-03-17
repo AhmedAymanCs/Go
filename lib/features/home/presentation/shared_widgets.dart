@@ -21,6 +21,13 @@ class MapState extends State<Map> {
         final cubit = context.read<HomeCubit>();
         return Scaffold(
           body: GoogleMap(
+            onTap: (latLng) async {
+              cubit.addMarker(latLng);
+              cubit.drawRoute(
+                latLng,
+                placeName: await cubit.reverseGeocoding(latLng),
+              );
+            },
             buildingsEnabled: false,
             mapType: MapType.normal,
             style: state.mapStyle,

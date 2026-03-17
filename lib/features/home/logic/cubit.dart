@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/constants/image_manager.dart';
 import 'package:go/core/constants/styles_manager.dart';
+import 'package:go/features/home/data/models/route_prams.dart';
 import 'package:go/features/home/data/repository/repo.dart';
 import 'package:go/features/home/logic/states.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -129,9 +130,11 @@ class HomeCubit extends Cubit<HomeState> {
     if (state.position == null) return;
     moveTo(destination, zoom: 12);
     final res = await _homeRepository.getRouteCoordinates(
-      destination: destination,
-      position: LatLng(state.position!.latitude, state.position!.longitude),
-      placeName: placeName,
+      RoutePrams(
+        destination: destination,
+        position: LatLng(state.position!.latitude, state.position!.longitude),
+        placeName: placeName,
+      ),
     );
     res.fold(
       (error) => emit(state.copyWith(error: error)),
@@ -149,6 +152,14 @@ class HomeCubit extends Cubit<HomeState> {
         ),
       ),
     );
+  }
+
+  Future<String> reverseGeocoding(LatLng position) async {
+    final res = await _homeRepository.reverseGeocoding(position);
+    return res.fold((error) {
+      emit(state.copyWith(error: error, status: HomeStatus.error));
+      return 'Unknown';
+    }, (placeName) => placeName);
   }
 
   @override
