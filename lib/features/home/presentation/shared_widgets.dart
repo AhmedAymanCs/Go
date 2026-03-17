@@ -21,6 +21,7 @@ class MapState extends State<Map> {
         final cubit = context.read<HomeCubit>();
         return Scaffold(
           body: GoogleMap(
+            buildingsEnabled: false,
             mapType: MapType.normal,
             style: state.mapStyle,
             markers: state.markers,
