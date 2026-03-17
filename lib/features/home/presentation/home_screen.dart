@@ -94,7 +94,8 @@ class _HomePageState extends State<HomePage> {
                             CustomFormField(
                               hint: 'Where do you want to go?',
                               controller: _destinationController,
-                              onChanged: (value) => cubit.searchPlaces(value!),
+                              onChanged: (value) =>
+                                  cubit.searchPlaces(value ?? ''),
                             ),
                             ListView.builder(
                               shrinkWrap: true,
@@ -103,7 +104,7 @@ class _HomePageState extends State<HomePage> {
                               itemBuilder: (context, index) {
                                 return PlaceItem(
                                   placeName: state.places[index].displayName,
-                                  onTap: () => cubit.moveTo(
+                                  onTap: () => cubit.drawRoute(
                                     LatLng(
                                       state.places[index].lat,
                                       state.places[index].lon,

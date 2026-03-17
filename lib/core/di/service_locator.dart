@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go/core/constants/app_constants.dart';
 import 'package:go/features/home/data/data_source/data_source.dart';
 import 'package:go/features/home/data/repository/repo.dart';
+import 'package:open_route_service/open_route_service.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go/core/database/local/secure_storage/secure_storage_helper.dart';
@@ -20,6 +21,7 @@ void intiSetupLocator() {
   _setupFirestoreServiceLocator();
   _setupSupabaseServiceLocator();
   _setupHomeServiceLocator();
+  _setupOpenRouteServiceLocator();
 }
 
 void _setupSecureStorageServiceLocator() {
@@ -70,6 +72,13 @@ void _setupHomeServiceLocator() {
   getIt.registerFactory<HomeDataSource>(
     () => HomeDataSourceImpl(
       Nominatim(userAgent: AppConstants.nominatimUserAgent),
+      getIt<OpenRouteService>(),
     ),
+  );
+}
+
+void _setupOpenRouteServiceLocator() {
+  getIt.registerLazySingleton<OpenRouteService>(
+    () => OpenRouteService(apiKey: dotenv.env['ORS_API_KEY'] ?? ''),
   );
 }

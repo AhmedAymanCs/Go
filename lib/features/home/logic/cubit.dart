@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/constants/image_manager.dart';
 import 'package:go/core/constants/styles_manager.dart';
 import 'package:go/features/home/data/repository/repo.dart';
@@ -79,8 +79,16 @@ class HomeCubit extends Cubit<HomeState> {
     await _checkPermission();
     if (state.isPermissionGranted) {
       _positionStream = Geolocator.getPositionStream().listen((position) {
-        emit(state.copyWith(position: position));
+        final bool alreadyMoved = state.hasMoved;
+        emit(state.copyWith(position: position, hasMoved: true));
         _updateMarker();
+        if (!alreadyMoved) {
+          state.controller?.animateCamera(
+            CameraUpdate.newLatLng(
+              LatLng(position.latitude, position.longitude),
+            ),
+          );
+        }
       });
     }
   }
@@ -96,16 +104,42 @@ class HomeCubit extends Cubit<HomeState> {
   void _updateMarker() {
     if (state.position == null) return;
 
+    final latLng = LatLng(state.position!.latitude, state.position!.longitude);
+
     final updatedMarkers = {
       ...state.markers,
       Marker(
         markerId: const MarkerId('current_location'),
-        position: LatLng(state.position!.latitude, state.position!.longitude),
+        position: latLng,
         icon: state.currentLocationIcon,
       ),
     };
 
     emit(state.copyWith(markers: updatedMarkers));
+  }
+
+  Future<void> drawRoute(LatLng destination) async {
+    if (state.position == null) return;
+
+    final res = await _homeRepository.getRouteCoordinates(
+      destination: destination,
+      position: LatLng(state.position!.latitude, state.position!.longitude),
+    );
+    res.fold(
+      (error) => emit(state.copyWith(error: error)),
+      (coordinates) => emit(
+        state.copyWith(
+          polylines: {
+            Polyline(
+              polylineId: const PolylineId('route'),
+              points: coordinates,
+              color: ColorManager.greenAccent,
+              width: 5,
+            ),
+          },
+        ),
+      ),
+    );
   }
 
   @override

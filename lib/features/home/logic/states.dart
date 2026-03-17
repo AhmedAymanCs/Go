@@ -15,6 +15,8 @@ class HomeState extends Equatable {
   final Position? position;
   final bool isPermissionGranted;
   final BitmapDescriptor currentLocationIcon;
+  final bool hasMoved;
+  final Set<Polyline> polylines;
   const HomeState({
     this.status = HomeStatus.initial,
     this.error = '',
@@ -25,6 +27,8 @@ class HomeState extends Equatable {
     this.position,
     this.isPermissionGranted = false,
     this.currentLocationIcon = BitmapDescriptor.defaultMarker,
+    this.hasMoved = false,
+    this.polylines = const {},
   });
   HomeState copyWith({
     HomeStatus? status,
@@ -36,6 +40,8 @@ class HomeState extends Equatable {
     Position? position,
     bool? isPermissionGranted,
     BitmapDescriptor? currentLocationIcon,
+    bool? hasMoved,
+    Set<Polyline>? polylines,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -47,6 +53,8 @@ class HomeState extends Equatable {
       position: position ?? this.position,
       isPermissionGranted: isPermissionGranted ?? this.isPermissionGranted,
       currentLocationIcon: currentLocationIcon ?? this.currentLocationIcon,
+      hasMoved: hasMoved ?? this.hasMoved,
+      polylines: polylines ?? this.polylines,
     );
   }
 
@@ -61,5 +69,7 @@ class HomeState extends Equatable {
     position,
     isPermissionGranted,
     currentLocationIcon,
+    hasMoved,
+    polylines,
   ];
 }

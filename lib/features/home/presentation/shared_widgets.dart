@@ -13,11 +13,6 @@ class Map extends StatefulWidget {
 }
 
 class MapState extends State<Map> {
-  final CameraPosition _initialCameraPosition = CameraPosition(
-    target: LatLng(30.101474, 31.240202),
-    zoom: 16,
-  );
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeCubit, HomeState>(
@@ -27,7 +22,13 @@ class MapState extends State<Map> {
           body: GoogleMap(
             style: state.mapStyle,
             markers: state.markers,
-            initialCameraPosition: _initialCameraPosition,
+            polylines: state.polylines,
+            initialCameraPosition: CameraPosition(
+              target: state.position != null
+                  ? LatLng(state.position!.latitude, state.position!.longitude)
+                  : const LatLng(30.0444, 31.2357),
+              zoom: 16,
+            ),
             onMapCreated: (GoogleMapController controller) =>
                 cubit.onMapCreated(controller),
           ),
