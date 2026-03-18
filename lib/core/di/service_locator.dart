@@ -39,7 +39,10 @@ void _setupSecureStorageServiceLocator() {
 void _setupAuthRepositoryLocator() {
   getIt.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
   getIt.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(getIt<FirebaseAuth>()),
+    () => AuthRemoteDataSourceImpl(
+      getIt<FirebaseAuth>(),
+      getIt<FirebaseFirestore>(),
+    ),
   );
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -71,8 +74,9 @@ void _setupHomeServiceLocator() {
   );
   getIt.registerFactory<HomeDataSource>(
     () => HomeDataSourceImpl(
-      Nominatim(userAgent: AppConstants.nominatimUserAgent),
-      getIt<OpenRouteService>(),
+      nominatim: Nominatim(userAgent: AppConstants.nominatimUserAgent),
+      ors: getIt<OpenRouteService>(),
+      firestore: getIt<FirebaseFirestore>(),
     ),
   );
 }

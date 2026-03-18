@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go/core/constants/app_constants.dart';
 import 'package:go/core/utils/typedef.dart';
+import 'package:go/features/home/data/models/order_model.dart';
 import 'package:go/features/home/data/models/route_model.dart';
 import 'package:go/features/home/data/models/route_prams.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,25 +12,27 @@ abstract class HomeDataSource {
   Places searchPlaces(String query);
   Future<String> reverseGeocoding(LatLng position);
   Future<RouteModel> getRouteCoordinates(RoutePrams params);
+  Future<void> createOrder(OrderModel order);
 }
 
 class HomeDataSourceImpl implements HomeDataSource {
-  final Nominatim _nominatim;
-  final OpenRouteService _ors;
-  HomeDataSourceImpl(this._nominatim, this._ors);
+  final Nominatim nominatim;
+  final OpenRouteService ors;
+  final FirebaseFirestore firestore;
+  HomeDataSourceImpl({
+    required this.nominatim,
+    required this.ors,
+    required this.firestore,
+  });
 
   @override
   Places searchPlaces(String query) async {
-    return _nominatim.searchByName(
-      query: query,
-      limit: 5,
-      countryCodes: ['eg'],
-    );
+    return nominatim.searchByName(query: query, limit: 5, countryCodes: ['eg']);
   }
 
   @override
   Future<RouteModel> getRouteCoordinates(RoutePrams params) async {
-    final response = await _ors.directionsRouteGeoJsonGet(
+    final response = await ors.directionsRouteGeoJsonGet(
       startCoordinate: ORSCoordinate(
         latitude: params.position.latitude,
         longitude: params.position.longitude,
@@ -56,11 +60,19 @@ class HomeDataSourceImpl implements HomeDataSource {
 
   @override
   Future<String> reverseGeocoding(LatLng position) async {
-    final place = await _nominatim.reverseSearch(
+    final place = await nominatim.reverseSearch(
       lat: position.latitude,
       lon: position.longitude,
       language: 'ar',
     );
     return place.displayName;
+  }
+
+  @override
+  Future<void> createOrder(OrderModel order) async {
+    final doc = firestore.collection(AppConstants.ordersCollectionName).doc();
+    final json = order.toJson();
+    json['id'] = doc.id;
+    await doc.set(json);
   }
 }

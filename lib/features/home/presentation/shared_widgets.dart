@@ -71,102 +71,106 @@ class PlaceItem extends StatelessWidget {
 
 class RouteItem extends StatelessWidget {
   final RouteModel route;
-  const RouteItem({super.key, required this.route});
+  final VoidCallback onTap;
+  const RouteItem({super.key, required this.route, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 10),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: ColorManager.backgroundLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorManager.gray200),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: ColorManager.greenSoft,
-              borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: ColorManager.backgroundLight,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: ColorManager.gray200),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: ColorManager.greenSoft,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.location_on,
+                color: ColorManager.greenAccent,
+                size: 22,
+              ),
             ),
-            child: Icon(
-              Icons.location_on,
-              color: ColorManager.greenAccent,
-              size: 22,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    route.placeName,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: ColorManager.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.straighten,
+                        size: 12,
+                        color: ColorManager.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${route.distanceKm.toStringAsFixed(1)} km',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: ColorManager.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.access_time,
+                        size: 12,
+                        color: ColorManager.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        route.formattedDuration,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: ColorManager.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  route.placeName,
+                  '${route.price.toStringAsFixed(0)} EGP',
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: ColorManager.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: ColorManager.greenAccent,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.straighten,
-                      size: 12,
-                      color: ColorManager.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${route.distanceKm.toStringAsFixed(1)} km',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: ColorManager.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Icon(
-                      Icons.access_time,
-                      size: 12,
-                      color: ColorManager.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      route.formattedDuration,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: ColorManager.textSecondary,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 4),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: ColorManager.gray500,
                 ),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${route.price.toStringAsFixed(0)} EGP',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: ColorManager.greenAccent,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: ColorManager.gray500,
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

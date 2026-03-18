@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/constants/image_manager.dart';
 import 'package:go/core/constants/styles_manager.dart';
+import 'package:go/features/home/data/models/order_model.dart';
 import 'package:go/features/home/data/models/route_prams.dart';
 import 'package:go/features/home/data/repository/repo.dart';
 import 'package:go/features/home/logic/states.dart';
@@ -162,6 +163,18 @@ class HomeCubit extends Cubit<HomeState> {
       emit(state.copyWith(error: error, status: HomeStatus.error));
       return 'Unknown';
     }, (placeName) => placeName);
+  }
+
+  Future<void> createOrder(OrderModel order) async {
+    final res = await _homeRepository.createOrder(order);
+    res.fold(
+      (error) {
+        emit(state.copyWith(error: error, status: HomeStatus.error));
+      },
+      (unit) {
+        emit(state.copyWith(status: HomeStatus.orderCreated));
+      },
+    );
   }
 
   @override

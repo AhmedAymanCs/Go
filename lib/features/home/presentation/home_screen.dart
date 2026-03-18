@@ -1,10 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/di/service_locator.dart';
+import 'package:go/core/widgets/custom_button.dart';
 import 'package:go/core/widgets/cutom_form_field.dart';
 import 'package:go/core/widgets/logo_with_text.dart';
+import 'package:go/features/home/data/models/order_model.dart';
 import 'package:go/features/home/data/repository/repo.dart';
 import 'package:go/features/home/logic/cubit.dart';
 import 'package:go/features/home/logic/states.dart';
@@ -78,47 +81,87 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: SingleChildScrollView(
                         controller: scrollController,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 4,
-                              margin: const EdgeInsets.only(bottom: 12),
-                              decoration: BoxDecoration(
-                                color: ColorManager.gray500,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            state.route == null
-                                ? LogoWithText(text: '')
-                                : RouteItem(route: state.route!),
-                            const SizedBox(height: 8),
-                            CustomFormField(
-                              hint: 'Where do you want to go?',
-                              controller: _destinationController,
-                              onChanged: (value) =>
-                                  cubit.searchPlaces(value ?? ''),
-                            ),
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: state.places.length,
-                              itemBuilder: (context, index) {
-                                return PlaceItem(
-                                  placeName: state.places[index].displayName,
-                                  onTap: () => cubit.drawRoute(
-                                    LatLng(
-                                      state.places[index].lat,
-                                      state.places[index].lon,
+                        child: state.status == HomeStatus.orderCreated
+                            ? SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.5,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 16),
+                                    Text('Waiting for driver...'),
+                                  ],
+                                ),
+                              )
+                            : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 4,
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    decoration: BoxDecoration(
+                                      color: ColorManager.gray500,
+                                      borderRadius: BorderRadius.circular(2),
                                     ),
-                                    placeName: state.places[index].displayName,
                                   ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                  state.route == null
+                                      ? LogoWithText(text: '')
+                                      : RouteItem(
+                                          route: state.route!,
+                                          onTap: () => cubit.createOrder(
+                                            OrderModel(
+                                              destination:
+                                                  state.route!.placeName,
+                                              distanceKm:
+                                                  state.route!.distanceKm,
+                                              durationMin:
+                                                  state.route!.durationMin,
+                                              price: state.route!.price,
+                                              destinationLat: state
+                                                  .route!
+                                                  .points[1]
+                                                  .latitude,
+                                              destinationLng: state
+                                                  .route!
+                                                  .points[1]
+                                                  .longitude,
+                                              passengerId: getIt<FirebaseAuth>()
+                                                  .currentUser!
+                                                  .uid,
+                                            ),
+                                          ),
+                                        ),
+                                  const SizedBox(height: 8),
+                                  CustomFormField(
+                                    hint: 'Where do you want to go?',
+                                    controller: _destinationController,
+                                    onChanged: (value) =>
+                                        cubit.searchPlaces(value ?? ''),
+                                  ),
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: state.places.length,
+                                    itemBuilder: (context, index) {
+                                      return PlaceItem(
+                                        placeName:
+                                            state.places[index].displayName,
+                                        onTap: () => cubit.drawRoute(
+                                          LatLng(
+                                            state.places[index].lat,
+                                            state.places[index].lon,
+                                          ),
+                                          placeName:
+                                              state.places[index].displayName,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                       ),
                     );
                   },

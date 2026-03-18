@@ -4,7 +4,7 @@ import 'package:go/features/home/data/models/route_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 
-enum HomeStatus { initial, loading, success, error }
+enum HomeStatus { initial, loading, success, error, orderCreated }
 
 class HomeState extends Equatable {
   final HomeStatus status;

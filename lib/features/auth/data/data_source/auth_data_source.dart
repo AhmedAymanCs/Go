@@ -14,7 +14,8 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth _firebaseAuth;
-  AuthRemoteDataSourceImpl(this._firebaseAuth);
+  final FirebaseFirestore _firestore;
+  AuthRemoteDataSourceImpl(this._firebaseAuth, this._firestore);
   @override
   Future<UserCredential> login({
     required String email,
@@ -33,7 +34,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           email: params.email,
           password: params.password,
         );
-    await FirebaseFirestore.instance
+    await _firestore
         .collection(AppConstants.usersCollectionName)
         .doc(credential.user!.uid)
         .set(params.toMap());
