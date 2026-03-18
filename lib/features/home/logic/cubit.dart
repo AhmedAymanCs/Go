@@ -171,9 +171,18 @@ class HomeCubit extends Cubit<HomeState> {
       (error) {
         emit(state.copyWith(error: error, status: HomeStatus.error));
       },
-      (unit) {
-        emit(state.copyWith(status: HomeStatus.orderCreated));
+      (orderId) {
+        emit(state.copyWith(status: HomeStatus.orderCreated, orderId: orderId));
       },
+    );
+  }
+
+  Future<void> cancelOrder() async {
+    if (state.orderId == null) return;
+    final res = await _homeRepository.cancelOrder(state.orderId!);
+    res.fold(
+      (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
+      (_) => emit(state.copyWith(orderId: null, status: HomeStatus.success)),
     );
   }
 

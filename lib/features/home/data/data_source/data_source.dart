@@ -9,10 +9,14 @@ import 'package:open_route_service/open_route_service.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 
 abstract class HomeDataSource {
+  //Map
   Places searchPlaces(String query);
   Future<String> reverseGeocoding(LatLng position);
   Future<RouteModel> getRouteCoordinates(RoutePrams params);
-  Future<void> createOrder(OrderModel order);
+
+  //Firebase
+  Future<String> createOrder(OrderModel order);
+  Future<void> cancelOrder(String orderId);
 }
 
 class HomeDataSourceImpl implements HomeDataSource {
@@ -25,6 +29,7 @@ class HomeDataSourceImpl implements HomeDataSource {
     required this.firestore,
   });
 
+  //Map
   @override
   Places searchPlaces(String query) async {
     return nominatim.searchByName(query: query, limit: 5, countryCodes: ['eg']);
@@ -68,11 +73,22 @@ class HomeDataSourceImpl implements HomeDataSource {
     return place.displayName;
   }
 
+  //Firebase
+
   @override
-  Future<void> createOrder(OrderModel order) async {
+  Future<String> createOrder(OrderModel order) async {
     final doc = firestore.collection(AppConstants.ordersCollectionName).doc();
     final json = order.toJson();
     json['id'] = doc.id;
     await doc.set(json);
+    return doc.id;
+  }
+
+  @override
+  Future<void> cancelOrder(String orderId) async {
+    await firestore
+        .collection(AppConstants.ordersCollectionName)
+        .doc(orderId)
+        .delete();
   }
 }

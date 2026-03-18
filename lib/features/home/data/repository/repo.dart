@@ -8,16 +8,21 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 
 abstract class HomeRepository {
+  //Map
   ServerResponse<List<Place>> searchPlaces(String query);
   ServerResponse<RouteModel> getRouteCoordinates(RoutePrams params);
   ServerResponse<String> reverseGeocoding(LatLng position);
-  ServerResponse<Unit> createOrder(OrderModel order);
+
+  //Firebase
+  ServerResponse<String> createOrder(OrderModel order);
+  ServerResponse<Unit> cancelOrder(String orderId);
 }
 
 class HomeRepositoryImpl implements HomeRepository {
   final HomeDataSource _homeDataSource;
   HomeRepositoryImpl(this._homeDataSource);
 
+  //Map
   @override
   ServerResponse<List<Place>> searchPlaces(String query) async {
     try {
@@ -48,10 +53,21 @@ class HomeRepositoryImpl implements HomeRepository {
     }
   }
 
+  //Firebase
   @override
-  ServerResponse<Unit> createOrder(OrderModel order) async {
+  ServerResponse<String> createOrder(OrderModel order) async {
     try {
-      await _homeDataSource.createOrder(order);
+      final res = await _homeDataSource.createOrder(order);
+      return Right(res);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  ServerResponse<Unit> cancelOrder(String orderId) async {
+    try {
+      await _homeDataSource.cancelOrder(orderId);
       return Right(unit);
     } catch (e) {
       return Left(e.toString());

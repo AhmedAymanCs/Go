@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/di/service_locator.dart';
@@ -84,13 +85,18 @@ class _HomePageState extends State<HomePage> {
                         child: state.status == HomeStatus.orderCreated
                             ? SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.height * 0.5,
+                                    MediaQuery.of(context).size.height * 0.4,
                                 child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    SizedBox(height: 15.h),
                                     CircularProgressIndicator(),
-                                    SizedBox(height: 16),
+                                    SizedBox(height: 15.h),
                                     Text('Waiting for driver...'),
+                                    const Spacer(),
+                                    CustomButton(
+                                      text: 'Cancel Trip',
+                                      onPressed: () => cubit.cancelOrder(),
+                                    ),
                                   ],
                                 ),
                               )
