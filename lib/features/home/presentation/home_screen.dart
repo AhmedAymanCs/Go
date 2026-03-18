@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go/core/constants/color_manager.dart';
+import 'package:go/core/constants/string_manager.dart';
 import 'package:go/core/di/service_locator.dart';
 import 'package:go/core/widgets/custom_button.dart';
 import 'package:go/core/widgets/cutom_form_field.dart';
@@ -91,10 +92,10 @@ class _HomePageState extends State<HomePage> {
                                     SizedBox(height: 15.h),
                                     CircularProgressIndicator(),
                                     SizedBox(height: 15.h),
-                                    Text('Waiting for driver...'),
+                                    Text(StringManager.waitingForDriver),
                                     const Spacer(),
                                     CustomButton(
-                                      text: 'Cancel Trip',
+                                      text: StringManager.cancelTrip,
                                       onPressed: () => cubit.cancelOrder(),
                                     ),
                                   ],
@@ -141,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                   const SizedBox(height: 8),
                                   CustomFormField(
-                                    hint: 'Where do you want to go?',
+                                    hint: StringManager.createTripHint,
                                     controller: _destinationController,
                                     onChanged: (value) =>
                                         cubit.searchPlaces(value ?? ''),
