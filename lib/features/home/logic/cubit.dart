@@ -60,7 +60,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> searchPlaces(String query) async {
-    if (query.isEmpty) {
+    if (query.isEmpty || query.length < 3) {
       emit(state.copyWith(places: []));
     } else {
       final res = await _homeRepository.searchPlaces(query);
@@ -172,7 +172,9 @@ class HomeCubit extends Cubit<HomeState> {
         emit(state.copyWith(error: error, status: HomeStatus.error));
       },
       (orderId) {
-        emit(state.copyWith(status: HomeStatus.orderCreated, orderId: orderId));
+        emit(
+          state.copyWith(tripStatus: TripStatus.searching, orderId: orderId),
+        );
       },
     );
   }
@@ -182,7 +184,7 @@ class HomeCubit extends Cubit<HomeState> {
     final res = await _homeRepository.cancelOrder(state.orderId!);
     res.fold(
       (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
-      (_) => emit(state.copyWith(orderId: null, status: HomeStatus.success)),
+      (_) => emit(state.copyWith(orderId: null, tripStatus: TripStatus.idle)),
     );
   }
 

@@ -4,10 +4,13 @@ import 'package:go/features/home/data/models/route_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 
-enum HomeStatus { initial, loading, success, error, orderCreated }
+enum HomeStatus { initial, loading, success, error }
+
+enum TripStatus { idle, searching, accepted, cancelled }
 
 class HomeState extends Equatable {
   final HomeStatus status;
+  final TripStatus tripStatus;
   final String error;
   final String mapStyle;
   final GoogleMapController? controller;
@@ -22,6 +25,7 @@ class HomeState extends Equatable {
   final String? orderId;
   const HomeState({
     this.status = HomeStatus.initial,
+    this.tripStatus = TripStatus.idle,
     this.error = '',
     this.controller,
     this.mapStyle = '',
@@ -37,6 +41,7 @@ class HomeState extends Equatable {
   });
   HomeState copyWith({
     HomeStatus? status,
+    TripStatus? tripStatus,
     String? error,
     GoogleMapController? controller,
     String? mapStyle,
@@ -52,6 +57,7 @@ class HomeState extends Equatable {
   }) {
     return HomeState(
       status: status ?? this.status,
+      tripStatus: tripStatus ?? this.tripStatus,
       error: error ?? this.error,
       controller: controller ?? this.controller,
       mapStyle: mapStyle ?? this.mapStyle,
@@ -70,6 +76,7 @@ class HomeState extends Equatable {
   @override
   List<Object?> get props => [
     status,
+    tripStatus,
     error,
     controller,
     mapStyle,
