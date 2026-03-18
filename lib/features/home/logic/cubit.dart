@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go/core/constants/app_constants.dart';
 import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/constants/image_manager.dart';
 import 'package:go/core/constants/styles_manager.dart';
+import 'package:go/core/di/service_locator.dart';
 import 'package:go/features/home/data/models/order_model.dart';
 import 'package:go/features/home/data/models/route_prams.dart';
 import 'package:go/features/home/data/repository/repo.dart';
@@ -110,9 +114,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   void _updateMarker() {
     if (state.position == null) return;
-
     final latLng = LatLng(state.position!.latitude, state.position!.longitude);
-
     final updatedMarkers = {
       ...state.markers,
       Marker(
@@ -122,7 +124,6 @@ class HomeCubit extends Cubit<HomeState> {
         anchor: const Offset(0.5, 0.5),
       ),
     };
-
     emit(state.copyWith(markers: updatedMarkers));
   }
 
@@ -131,7 +132,6 @@ class HomeCubit extends Cubit<HomeState> {
     required String placeName,
   }) async {
     if (state.position == null) return;
-
     emit(state.copyWith(polylines: {}));
     moveTo(destination, zoom: 12);
     final res = await _homeRepository.getRouteCoordinates(
@@ -168,7 +168,14 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> createOrder(OrderModel order) async {
-    final res = await _homeRepository.createOrder(order);
+    final userSession = await getIt<FlutterSecureStorage>().read(
+      key: AppConstants.userSession,
+    );
+    final updatedOrder = order.copyWith(
+      passengerName: jsonDecode(userSession!)['name'],
+      passengerPhone: jsonDecode(userSession)['phone'],
+    );
+    final res = await _homeRepository.createOrder(updatedOrder);
     res.fold(
       (error) {
         emit(state.copyWith(error: error, status: HomeStatus.error));
@@ -183,6 +190,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   Future<void> cancelOrder() async {
     if (state.orderId == null) return;
+    emit(state.copyWith(tripStatus: TripStatus.cancelled));
     final res = await _homeRepository.cancelOrder(state.orderId!);
     res.fold(
       (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),

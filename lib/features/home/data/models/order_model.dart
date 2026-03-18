@@ -10,7 +10,8 @@ class OrderModel {
   final double passengerLng;
   final String passengerId;
   final String? status;
-
+  final String? passengerName;
+  final String? passengerPhone;
   const OrderModel({
     this.id,
     required this.destination,
@@ -23,6 +24,8 @@ class OrderModel {
     this.status,
     required this.passengerLat,
     required this.passengerLng,
+    this.passengerName,
+    this.passengerPhone,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +41,39 @@ class OrderModel {
       status: json['status'] ?? 'pending',
       passengerLat: (json['passenger_lat'] as num).toDouble(),
       passengerLng: (json['passenger_lng'] as num).toDouble(),
+      passengerName: json['passenger_name'] ?? 'Not Found',
+      passengerPhone: json['passenger_phone'] ?? 'Not Found',
+    );
+  }
+  OrderModel copyWith({
+    String? id,
+    String? destination,
+    double? distanceKm,
+    double? durationMin,
+    double? price,
+    double? destinationLat,
+    double? destinationLng,
+    String? passengerId,
+    String? status,
+    double? passengerLat,
+    double? passengerLng,
+    String? passengerName,
+    String? passengerPhone,
+  }) {
+    return OrderModel(
+      id: id ?? this.id,
+      destination: destination ?? this.destination,
+      distanceKm: distanceKm ?? this.distanceKm,
+      durationMin: durationMin ?? this.durationMin,
+      price: price ?? this.price,
+      destinationLat: destinationLat ?? this.destinationLat,
+      destinationLng: destinationLng ?? this.destinationLng,
+      passengerId: passengerId ?? this.passengerId,
+      status: status ?? this.status,
+      passengerLat: passengerLat ?? this.passengerLat,
+      passengerLng: passengerLng ?? this.passengerLng,
+      passengerName: passengerName ?? this.passengerName,
+      passengerPhone: passengerPhone ?? this.passengerPhone,
     );
   }
 
@@ -54,6 +90,8 @@ class OrderModel {
       'status': status ?? 'pending',
       'passenger_lat': passengerLat,
       'passenger_lng': passengerLng,
+      'passenger_name': passengerName ?? 'Not Found',
+      'passenger_phone': passengerPhone ?? 'Not Found',
     };
   }
 }

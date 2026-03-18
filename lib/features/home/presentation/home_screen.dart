@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                                                         .currentUser!
                                                         .uid,
                                                 passengerLat:
-                                                    state.position!.altitude,
+                                                    state.position!.latitude,
                                                 passengerLng:
                                                     state.position!.longitude,
                                               ),
