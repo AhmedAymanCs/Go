@@ -54,6 +54,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   void addMarker(LatLng latLng) {
     final markers = {
+      ...state.markers,
       Marker(markerId: const MarkerId('destination'), position: latLng),
     };
     emit(state.copyWith(markers: markers));
@@ -130,6 +131,7 @@ class HomeCubit extends Cubit<HomeState> {
     required String placeName,
   }) async {
     if (state.position == null) return;
+
     emit(state.copyWith(polylines: {}));
     moveTo(destination, zoom: 12);
     final res = await _homeRepository.getRouteCoordinates(

@@ -142,6 +142,10 @@ class _HomePageState extends State<HomePage> {
                                                     getIt<FirebaseAuth>()
                                                         .currentUser!
                                                         .uid,
+                                                passengerLat:
+                                                    state.position!.altitude,
+                                                passengerLng:
+                                                    state.position!.longitude,
                                               ),
                                             ),
                                           ),
