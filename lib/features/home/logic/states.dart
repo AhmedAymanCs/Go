@@ -1,5 +1,7 @@
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go/features/home/data/models/order_model.dart';
 import 'package:go/features/home/data/models/route_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
@@ -23,7 +25,7 @@ class HomeState extends Equatable {
   final bool hasMoved;
   final Set<Polyline> polylines;
   final RouteModel? route;
-  final String? orderId;
+  final OrderModel? order;
   const HomeState({
     this.status = HomeStatus.initial,
     this.tripStatus = TripStatus.idle,
@@ -38,8 +40,8 @@ class HomeState extends Equatable {
     this.hasMoved = false,
     this.polylines = const {},
     this.route,
-    this.orderId,
     this.carIcon,
+    this.order,
   });
   HomeState copyWith({
     HomeStatus? status,
@@ -56,7 +58,8 @@ class HomeState extends Equatable {
     bool? hasMoved,
     Set<Polyline>? polylines,
     RouteModel? route,
-    String? orderId,
+    OrderModel? order,
+    bool clearOrder = false,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -72,7 +75,7 @@ class HomeState extends Equatable {
       hasMoved: hasMoved ?? this.hasMoved,
       polylines: polylines ?? this.polylines,
       route: route ?? this.route,
-      orderId: orderId ?? this.orderId,
+      order: clearOrder ? null : (order ?? this.order),
       carIcon: carIcon ?? this.carIcon,
     );
   }
@@ -92,7 +95,7 @@ class HomeState extends Equatable {
     hasMoved,
     polylines,
     route,
-    orderId,
+    order,
     carIcon,
   ];
 }

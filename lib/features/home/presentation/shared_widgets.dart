@@ -7,7 +7,8 @@ import 'package:go/features/home/logic/states.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Map extends StatefulWidget {
-  const Map({super.key});
+  final bool activeTouch;
+  const Map({super.key, required this.activeTouch});
 
   @override
   State<Map> createState() => MapState();
@@ -21,13 +22,15 @@ class MapState extends State<Map> {
         final cubit = context.read<HomeCubit>();
         return Scaffold(
           body: GoogleMap(
-            onLongPress: (latLng) async {
-              cubit.addMarker(latLng);
-              cubit.drawRoute(
-                latLng,
-                placeName: await cubit.reverseGeocoding(latLng),
-              );
-            },
+            onLongPress: widget.activeTouch
+                ? (latLng) async {
+                    cubit.addMarker(latLng);
+                    cubit.drawRoute(
+                      latLng,
+                      placeName: await cubit.reverseGeocoding(latLng),
+                    );
+                  }
+                : (_) {},
             buildingsEnabled: false,
             mapType: MapType.normal,
             style: state.mapStyle,

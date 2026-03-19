@@ -27,8 +27,9 @@ class StringManager {
   static const String dontHaveAccount = 'Don\'t have an account?';
 
   //home
-
   static const String cancelTrip = 'Cancel Trip';
   static const String waitingForDriver = 'Waiting for driver...';
   static const String createTripHint = 'Where do you want to go?';
+  static const String captinTrip = 'Captin trip';
+  static const String price = 'Price';
 }

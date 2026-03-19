@@ -21,6 +21,7 @@ class HomeCubit extends Cubit<HomeState> {
   HomeCubit(this._homeRepository, this._secureStorage) : super(HomeState());
 
   StreamSubscription<Position>? _positionStream;
+  StreamSubscription<OrderModel>? _orderStream;
 
   void init(BuildContext context) async {
     final mapStyle = await setMapStyle(context);
@@ -106,7 +107,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   Future<void> _loadLocationIcon() async {
     final currentLocationIcon = await BitmapDescriptor.asset(
-      const ImageConfiguration(size: Size(48, 48), devicePixelRatio: 2.0),
+      const ImageConfiguration(size: Size(28, 28), devicePixelRatio: 2.0),
       ImageManager.currentLocation,
     );
     final carIcon = await BitmapDescriptor.asset(
@@ -190,8 +191,9 @@ class HomeCubit extends Cubit<HomeState> {
         emit(state.copyWith(error: error, status: HomeStatus.error));
       },
       (orderId) {
+        final orderWithId = updatedOrder.copyWith(id: orderId);
         emit(
-          state.copyWith(tripStatus: TripStatus.searching, orderId: orderId),
+          state.copyWith(tripStatus: TripStatus.searching, order: orderWithId),
         );
         listenToOrder(orderId);
       },
@@ -199,12 +201,15 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> cancelOrder() async {
-    if (state.orderId == null) return;
+    if (state.order?.id == null) return;
+    _orderStream?.cancel();
     emit(state.copyWith(tripStatus: TripStatus.cancelled));
-    final res = await _homeRepository.cancelOrder(state.orderId!);
+    final res = await _homeRepository.cancelOrder(state.order!.id!);
     res.fold(
       (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
-      (_) => emit(state.copyWith(orderId: null, tripStatus: TripStatus.idle)),
+      (_) {
+        emit(state.copyWith(clearOrder: true, tripStatus: TripStatus.idle));
+      },
     );
   }
 
@@ -212,16 +217,19 @@ class HomeCubit extends Cubit<HomeState> {
     final res = await _homeRepository.listenToOrder(orderId);
     res.fold(
       (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
-      (stream) => stream.listen((order) {
-        if (order.status == 'accepted' &&
-            order.driverLat != null &&
-            order.driverLng != null) {
-          _updateDriverMarker(
-            LatLng(order.driverLat!, order.driverLng!),
-            order.driverHeading,
-          );
-        }
-      }),
+      (stream) {
+        _orderStream = stream.listen((order) {
+          if (order.status == 'accepted' &&
+              order.driverLat != null &&
+              order.driverLng != null) {
+            emit(state.copyWith(tripStatus: TripStatus.accepted, order: order));
+            _updateDriverMarker(
+              LatLng(order.driverLat!, order.driverLng!),
+              order.driverHeading,
+            );
+          }
+        });
+      },
     );
   }
 
@@ -242,6 +250,7 @@ class HomeCubit extends Cubit<HomeState> {
   @override
   Future<void> close() {
     _positionStream?.cancel();
+    _orderStream?.cancel();
     return super.close();
   }
 }
