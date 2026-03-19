@@ -105,11 +105,20 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> _loadLocationIcon() async {
-    final icon = await BitmapDescriptor.asset(
+    final currentLocationIcon = await BitmapDescriptor.asset(
       const ImageConfiguration(size: Size(48, 48), devicePixelRatio: 2.0),
       ImageManager.currentLocation,
     );
-    emit(state.copyWith(currentLocationIcon: icon));
+    final carIcon = await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(28, 28), devicePixelRatio: 2.0),
+      ImageManager.car,
+    );
+    emit(
+      state.copyWith(
+        currentLocationIcon: currentLocationIcon,
+        carIcon: carIcon,
+      ),
+    );
   }
 
   void _updateMarker() {
@@ -204,24 +213,27 @@ class HomeCubit extends Cubit<HomeState> {
     res.fold(
       (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
       (stream) => stream.listen((order) {
-        print('order status: ${order.status}');
-        // emit(state.copyWith(currentOrder: order));
         if (order.status == 'accepted' &&
             order.driverLat != null &&
             order.driverLng != null) {
-          _updateDriverMarker(LatLng(order.driverLat!, order.driverLng!));
+          _updateDriverMarker(
+            LatLng(order.driverLat!, order.driverLng!),
+            order.driverHeading,
+          );
         }
       }),
     );
   }
 
-  void _updateDriverMarker(LatLng driverLocation) {
+  void _updateDriverMarker(LatLng driverLocation, double? driverHeading) {
     final updatedMarkers = {
       ...state.markers.where((m) => m.markerId.value != 'driver'),
       Marker(
         markerId: const MarkerId('driver'),
         position: driverLocation,
-        icon: BitmapDescriptor.defaultMarker,
+        icon: state.carIcon ?? BitmapDescriptor.defaultMarker,
+        rotation: driverHeading ?? 0,
+        flat: true,
       ),
     };
     emit(state.copyWith(markers: updatedMarkers));

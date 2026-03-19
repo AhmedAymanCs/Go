@@ -79,7 +79,7 @@ flutter:
   assets:
     - .env
     - assets/svg/
-    - assets/png/current_location.png
+    - assets/png/
     - assets/styles/map_style.json
 
 

@@ -19,6 +19,7 @@ class HomeState extends Equatable {
   final Position? position;
   final bool isPermissionGranted;
   final BitmapDescriptor currentLocationIcon;
+  final BitmapDescriptor? carIcon;
   final bool hasMoved;
   final Set<Polyline> polylines;
   final RouteModel? route;
@@ -38,6 +39,7 @@ class HomeState extends Equatable {
     this.polylines = const {},
     this.route,
     this.orderId,
+    this.carIcon,
   });
   HomeState copyWith({
     HomeStatus? status,
@@ -71,6 +73,7 @@ class HomeState extends Equatable {
       polylines: polylines ?? this.polylines,
       route: route ?? this.route,
       orderId: orderId ?? this.orderId,
+      carIcon: carIcon ?? this.carIcon,
     );
   }
 
@@ -90,5 +93,6 @@ class HomeState extends Equatable {
     polylines,
     route,
     orderId,
+    carIcon,
   ];
 }
