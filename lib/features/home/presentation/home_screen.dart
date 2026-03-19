@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/constants/string_manager.dart';
@@ -41,7 +42,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeCubit(getIt<HomeRepository>())..init(context),
+      create: (context) =>
+          HomeCubit(getIt<HomeRepository>(), getIt<FlutterSecureStorage>())
+            ..init(context),
       child: BlocConsumer<HomeCubit, HomeState>(
         listener: (context, state) {
           if (state.status == HomeStatus.error) {

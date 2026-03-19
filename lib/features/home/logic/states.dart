@@ -50,6 +50,7 @@ class HomeState extends Equatable {
     Position? position,
     bool? isPermissionGranted,
     BitmapDescriptor? currentLocationIcon,
+    BitmapDescriptor? carIcon,
     bool? hasMoved,
     Set<Polyline>? polylines,
     RouteModel? route,

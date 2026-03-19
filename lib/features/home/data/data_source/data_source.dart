@@ -17,6 +17,7 @@ abstract class HomeDataSource {
   //Firebase
   Future<String> createOrder(OrderModel order);
   Future<void> cancelOrder(String orderId);
+  Stream<OrderModel> listenToOrder(String orderId);
 }
 
 class HomeDataSourceImpl implements HomeDataSource {
@@ -81,6 +82,7 @@ class HomeDataSourceImpl implements HomeDataSource {
     final json = order.toJson();
     json['id'] = doc.id;
     await doc.set(json);
+
     return doc.id;
   }
 
@@ -90,5 +92,14 @@ class HomeDataSourceImpl implements HomeDataSource {
         .collection(AppConstants.ordersCollectionName)
         .doc(orderId)
         .delete();
+  }
+
+  @override
+  Stream<OrderModel> listenToOrder(String orderId) {
+    return firestore
+        .collection(AppConstants.ordersCollectionName)
+        .doc(orderId)
+        .snapshots()
+        .map((doc) => OrderModel.fromJson(doc.data()!));
   }
 }

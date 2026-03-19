@@ -12,6 +12,11 @@ class OrderModel {
   final String? status;
   final String? passengerName;
   final String? passengerPhone;
+  final String? driverId;
+  final double? driverLng;
+  final double? driverLat;
+  final String? driverName;
+  final String? driverPhone;
   const OrderModel({
     this.id,
     required this.destination,
@@ -26,6 +31,11 @@ class OrderModel {
     required this.passengerLng,
     this.passengerName,
     this.passengerPhone,
+    this.driverId,
+    this.driverLng,
+    this.driverLat,
+    this.driverName,
+    this.driverPhone,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +53,15 @@ class OrderModel {
       passengerLng: (json['passenger_lng'] as num).toDouble(),
       passengerName: json['passenger_name'] ?? 'Not Found',
       passengerPhone: json['passenger_phone'] ?? 'Not Found',
+      driverId: json['driver_id'] ?? '',
+      driverLat: json['driver_lat'] != null
+          ? (json['driver_lat'] as num).toDouble()
+          : null,
+      driverLng: json['driver_lng'] != null
+          ? (json['driver_lng'] as num).toDouble()
+          : null,
+      driverName: json['driver_name'] ?? 'Not Found',
+      driverPhone: json['driver_phone'] ?? 'Not Found',
     );
   }
   OrderModel copyWith({
@@ -59,6 +78,11 @@ class OrderModel {
     double? passengerLng,
     String? passengerName,
     String? passengerPhone,
+    String? driverId,
+    double? driverLat,
+    double? driverLng,
+    String? driverName,
+    String? driverPhone,
   }) {
     return OrderModel(
       id: id ?? this.id,
@@ -74,6 +98,11 @@ class OrderModel {
       passengerLng: passengerLng ?? this.passengerLng,
       passengerName: passengerName ?? this.passengerName,
       passengerPhone: passengerPhone ?? this.passengerPhone,
+      driverId: driverId ?? this.driverId,
+      driverLat: driverLat ?? this.driverLat,
+      driverLng: driverLng ?? this.driverLng,
+      driverName: driverName ?? this.driverName,
+      driverPhone: driverPhone ?? this.driverPhone,
     );
   }
 
@@ -92,6 +121,11 @@ class OrderModel {
       'passenger_lng': passengerLng,
       'passenger_name': passengerName ?? 'Not Found',
       'passenger_phone': passengerPhone ?? 'Not Found',
+      'driver_id': driverId ?? '',
+      'driver_lat': driverLat,
+      'driver_lng': driverLng,
+      'driver_name': driverName ?? 'Not Found',
+      'driver_phone': driverPhone ?? 'Not Found',
     };
   }
 }

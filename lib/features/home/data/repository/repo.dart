@@ -16,6 +16,7 @@ abstract class HomeRepository {
   //Firebase
   ServerResponse<String> createOrder(OrderModel order);
   ServerResponse<Unit> cancelOrder(String orderId);
+  ServerResponse<Stream<OrderModel>> listenToOrder(String orderId);
 }
 
 class HomeRepositoryImpl implements HomeRepository {
@@ -69,6 +70,15 @@ class HomeRepositoryImpl implements HomeRepository {
     try {
       await _homeDataSource.cancelOrder(orderId);
       return Right(unit);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  ServerResponse<Stream<OrderModel>> listenToOrder(String orderId) async {
+    try {
+      return Right(_homeDataSource.listenToOrder(orderId));
     } catch (e) {
       return Left(e.toString());
     }

@@ -8,7 +8,6 @@ import 'package:go/core/constants/app_constants.dart';
 import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/constants/image_manager.dart';
 import 'package:go/core/constants/styles_manager.dart';
-import 'package:go/core/di/service_locator.dart';
 import 'package:go/features/home/data/models/order_model.dart';
 import 'package:go/features/home/data/models/route_prams.dart';
 import 'package:go/features/home/data/repository/repo.dart';
@@ -18,7 +17,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final HomeRepository _homeRepository;
-  HomeCubit(this._homeRepository) : super(HomeState());
+  final FlutterSecureStorage _secureStorage;
+  HomeCubit(this._homeRepository, this._secureStorage) : super(HomeState());
 
   StreamSubscription<Position>? _positionStream;
 
@@ -35,7 +35,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   void onMapCreated(GoogleMapController controller) async {
     emit(state.copyWith(controller: controller));
-    await _loadCurrentLocationIcon();
+    await _loadLocationIcon();
     await getCurrentStreamLocation();
   }
 
@@ -104,7 +104,7 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  Future<void> _loadCurrentLocationIcon() async {
+  Future<void> _loadLocationIcon() async {
     final icon = await BitmapDescriptor.asset(
       const ImageConfiguration(size: Size(48, 48), devicePixelRatio: 2.0),
       ImageManager.currentLocation,
@@ -168,7 +168,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> createOrder(OrderModel order) async {
-    final userSession = await getIt<FlutterSecureStorage>().read(
+    final userSession = await _secureStorage.read(
       key: AppConstants.userSession,
     );
     final updatedOrder = order.copyWith(
@@ -184,6 +184,7 @@ class HomeCubit extends Cubit<HomeState> {
         emit(
           state.copyWith(tripStatus: TripStatus.searching, orderId: orderId),
         );
+        listenToOrder(orderId);
       },
     );
   }
@@ -196,6 +197,34 @@ class HomeCubit extends Cubit<HomeState> {
       (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
       (_) => emit(state.copyWith(orderId: null, tripStatus: TripStatus.idle)),
     );
+  }
+
+  Future<void> listenToOrder(String orderId) async {
+    final res = await _homeRepository.listenToOrder(orderId);
+    res.fold(
+      (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
+      (stream) => stream.listen((order) {
+        print('order status: ${order.status}');
+        // emit(state.copyWith(currentOrder: order));
+        if (order.status == 'accepted' &&
+            order.driverLat != null &&
+            order.driverLng != null) {
+          _updateDriverMarker(LatLng(order.driverLat!, order.driverLng!));
+        }
+      }),
+    );
+  }
+
+  void _updateDriverMarker(LatLng driverLocation) {
+    final updatedMarkers = {
+      ...state.markers.where((m) => m.markerId.value != 'driver'),
+      Marker(
+        markerId: const MarkerId('driver'),
+        position: driverLocation,
+        icon: BitmapDescriptor.defaultMarker,
+      ),
+    };
+    emit(state.copyWith(markers: updatedMarkers));
   }
 
   @override
