@@ -8,6 +8,7 @@ import 'package:go/core/constants/app_constants.dart';
 import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/constants/image_manager.dart';
 import 'package:go/core/constants/styles_manager.dart';
+import 'package:go/core/constants/trip_keywords.dart';
 import 'package:go/features/home/data/models/order_model.dart';
 import 'package:go/features/home/data/models/route_prams.dart';
 import 'package:go/features/home/data/repository/repo.dart';
@@ -202,6 +203,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   Future<void> cancelOrder() async {
     if (state.order?.id == null) return;
+    emit(state.copyWith(status: HomeStatus.loading));
     _orderStream?.cancel();
     emit(state.copyWith(tripStatus: TripStatus.cancelled));
     final res = await _homeRepository.cancelOrder(state.order!.id!);
@@ -215,11 +217,13 @@ class HomeCubit extends Cubit<HomeState> {
 
   Future<void> listenToOrder(String orderId) async {
     final res = await _homeRepository.listenToOrder(orderId);
+    bool retry = true;
+
     res.fold(
       (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
       (stream) {
         _orderStream = stream.listen((order) {
-          if (order.status == 'accepted' &&
+          if (order.status == TripKeywords.accepted &&
               order.driverLat != null &&
               order.driverLng != null) {
             emit(state.copyWith(tripStatus: TripStatus.accepted, order: order));
@@ -227,6 +231,33 @@ class HomeCubit extends Cubit<HomeState> {
               LatLng(order.driverLat!, order.driverLng!),
               order.driverHeading,
             );
+          } else if (order.status == TripKeywords.driverArrived) {
+            emit(state.copyWith(tripStatus: TripStatus.arrived, order: order));
+            _updateDriverMarker(
+              LatLng(order.driverLat!, order.driverLng!),
+              order.driverHeading,
+            );
+          } else if (order.status == TripKeywords.inProgress) {
+            if (retry) {
+              emit(
+                state.copyWith(
+                  tripStatus: TripStatus.inProgress,
+                  order: order,
+                  markers: {state.markers.first},
+                ),
+              );
+              retry = false;
+            }
+          } else if (order.status == TripKeywords.ended) {
+            emit(
+              state.copyWith(
+                tripStatus: TripStatus.cancelled,
+                order: order,
+                polylines: {},
+                markers: {state.markers.last},
+              ),
+            );
+            _orderStream?.cancel();
           }
         });
       },

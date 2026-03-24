@@ -1,13 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go/core/constants/color_manager.dart';
+import 'package:go/core/constants/font_manager.dart';
 import 'package:go/core/constants/string_manager.dart';
 import 'package:go/core/di/service_locator.dart';
-import 'package:go/core/widgets/custom_button.dart';
 import 'package:go/core/widgets/cutom_form_field.dart';
 import 'package:go/core/widgets/logo_with_text.dart';
 import 'package:go/features/home/data/models/order_model.dart';
@@ -50,6 +49,10 @@ class _HomePageState extends State<HomePage> {
           if (state.status == HomeStatus.error) {
             Fluttertoast.showToast(msg: state.error);
           }
+          if (state.tripStatus == TripStatus.cancelled) {
+            Fluttertoast.showToast(msg: 'You are done');
+            context.read<HomeCubit>().cancelOrder();
+          }
         },
         builder: (context, state) {
           final cubit = context.read<HomeCubit>();
@@ -76,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  state.tripStatus == TripStatus.accepted
+                  state.tripStatus != TripStatus.idle
                       ? Positioned(
                           bottom: 0,
                           left: 0,
@@ -89,31 +92,75 @@ class _HomePageState extends State<HomePage> {
                                 top: Radius.circular(20),
                               ),
                             ),
-                            child: ListTile(
-                              title: Text(
-                                '${StringManager.captinTrip} : ${state.order!.driverName}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: ColorManager.textPrimary,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: ListTile(
+                                    title: Text(
+                                      '${StringManager.captinTrip} : ${state.order!.driverName ?? 'Searching for driver...'}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: ColorManager.textPrimary,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      '${StringManager.phone} : ${state.order!.driverPhone ?? 'Searching'}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: ColorManager.textSecondary,
+                                      ),
+                                    ),
+                                    leading: Text(
+                                      '${state.order!.price.toStringAsFixed(0)} EGP',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: ColorManager.greenAccent,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              subtitle: Text(
-                                '${StringManager.phone} : ${state.order!.driverPhone}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: ColorManager.textSecondary,
+                                Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (state.status == HomeStatus.loading &&
+                                          state.tripStatus ==
+                                              TripStatus.cancelled)
+                                        const Text('Cancelling trip...')
+                                      else ...[
+                                        Text(
+                                          state.tripStatus !=
+                                                  TripStatus.searching
+                                              ? state.tripStatus.name
+                                              : "Trying to find driver...",
+                                          style: TextStyle(
+                                            fontSize: FontSize.s18,
+                                            fontWeight:
+                                                FontWeightManager.semiBold,
+                                          ),
+                                        ),
+
+                                        if (state.tripStatus ==
+                                            TripStatus.searching)
+                                          TextButton(
+                                            onPressed: () =>
+                                                cubit.cancelOrder(),
+                                            child: Text(
+                                              'Cancel Trip',
+                                              style: TextStyle(
+                                                color: ColorManager.error,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              leading: Text(
-                                '${state.order!.price.toStringAsFixed(0)} EGP',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: ColorManager.greenAccent,
-                                ),
-                              ),
+                              ],
                             ),
                           ),
                         )
@@ -131,119 +178,81 @@ class _HomePageState extends State<HomePage> {
                               ),
                               child: SingleChildScrollView(
                                 controller: scrollController,
-                                child: state.tripStatus == TripStatus.searching
-                                    ? SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                            0.4,
-                                        child: Column(
-                                          children: [
-                                            SizedBox(height: 15.h),
-                                            CircularProgressIndicator(),
-                                            SizedBox(height: 15.h),
-                                            Text(
-                                              StringManager.waitingForDriver,
-                                            ),
-                                            const Spacer(),
-                                            CustomButton(
-                                              text: StringManager.cancelTrip,
-                                              onPressed:
-                                                  state.order!.status !=
-                                                      'pending'
-                                                  ? () => cubit.cancelOrder()
-                                                  : null,
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            width: 40,
-                                            height: 4,
-                                            margin: const EdgeInsets.only(
-                                              bottom: 12,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: ColorManager.gray500,
-                                              borderRadius:
-                                                  BorderRadius.circular(2),
-                                            ),
-                                          ),
-                                          state.route == null
-                                              ? LogoWithText(text: '')
-                                              : RouteItem(
-                                                  route: state.route!,
-                                                  onTap: () =>
-                                                      cubit.createOrder(
-                                                        OrderModel(
-                                                          destination: state
-                                                              .route!
-                                                              .placeName,
-                                                          distanceKm: state
-                                                              .route!
-                                                              .distanceKm,
-                                                          durationMin: state
-                                                              .route!
-                                                              .durationMin,
-                                                          price: state
-                                                              .route!
-                                                              .price,
-                                                          destinationLat: state
-                                                              .route!
-                                                              .points[1]
-                                                              .latitude,
-                                                          destinationLng: state
-                                                              .route!
-                                                              .points[1]
-                                                              .longitude,
-                                                          passengerId:
-                                                              getIt<
-                                                                    FirebaseAuth
-                                                                  >()
-                                                                  .currentUser!
-                                                                  .uid,
-                                                          passengerLat: state
-                                                              .position!
-                                                              .latitude,
-                                                          passengerLng: state
-                                                              .position!
-                                                              .longitude,
-                                                        ),
-                                                      ),
-                                                ),
-                                          const SizedBox(height: 8),
-                                          CustomFormField(
-                                            hint: StringManager.createTripHint,
-                                            controller: _destinationController,
-                                            onChanged: (value) =>
-                                                cubit.searchPlaces(value ?? ''),
-                                          ),
-                                          ListView.builder(
-                                            shrinkWrap: true,
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            itemCount: state.places.length,
-                                            itemBuilder: (context, index) {
-                                              return PlaceItem(
-                                                placeName: state
-                                                    .places[index]
-                                                    .displayName,
-                                                onTap: () => cubit.drawRoute(
-                                                  LatLng(
-                                                    state.places[index].lat,
-                                                    state.places[index].lon,
-                                                  ),
-                                                  placeName: state
-                                                      .places[index]
-                                                      .displayName,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ],
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 4,
+                                      margin: const EdgeInsets.only(bottom: 12),
+                                      decoration: BoxDecoration(
+                                        color: ColorManager.gray500,
+                                        borderRadius: BorderRadius.circular(2),
                                       ),
+                                    ),
+                                    state.route == null
+                                        ? LogoWithText(text: '')
+                                        : RouteItem(
+                                            route: state.route!,
+                                            onTap: () => cubit.createOrder(
+                                              OrderModel(
+                                                destination:
+                                                    state.route!.placeName,
+                                                distanceKm:
+                                                    state.route!.distanceKm,
+                                                durationMin:
+                                                    state.route!.durationMin,
+                                                price: state.route!.price,
+                                                destinationLat: state
+                                                    .route!
+                                                    .points
+                                                    .last
+                                                    .latitude,
+                                                destinationLng: state
+                                                    .route!
+                                                    .points
+                                                    .last
+                                                    .longitude,
+                                                passengerId:
+                                                    getIt<FirebaseAuth>()
+                                                        .currentUser!
+                                                        .uid,
+                                                passengerLat:
+                                                    state.position!.latitude,
+                                                passengerLng:
+                                                    state.position!.longitude,
+                                              ),
+                                            ),
+                                          ),
+                                    const SizedBox(height: 8),
+                                    CustomFormField(
+                                      hint: StringManager.createTripHint,
+                                      controller: _destinationController,
+                                      onChanged: (value) =>
+                                          cubit.searchPlaces(value ?? ''),
+                                    ),
+                                    ListView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: state.places.length,
+                                      itemBuilder: (context, index) {
+                                        return PlaceItem(
+                                          placeName:
+                                              state.places[index].displayName,
+                                          onTap: () => cubit.drawRoute(
+                                            LatLng(
+                                              state.places[index].lat,
+                                              state.places[index].lon,
+                                            ),
+                                            placeName:
+                                                state.places[index].displayName,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },

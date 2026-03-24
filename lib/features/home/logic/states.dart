@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go/features/home/data/models/order_model.dart';
@@ -8,7 +7,7 @@ import 'package:osm_nominatim/osm_nominatim.dart';
 
 enum HomeStatus { initial, loading, success, error }
 
-enum TripStatus { idle, searching, accepted, cancelled }
+enum TripStatus { idle, searching, accepted, inProgress, arrived, cancelled }
 
 class HomeState extends Equatable {
   final HomeStatus status;
@@ -74,7 +73,7 @@ class HomeState extends Equatable {
       currentLocationIcon: currentLocationIcon ?? this.currentLocationIcon,
       hasMoved: hasMoved ?? this.hasMoved,
       polylines: polylines ?? this.polylines,
-      route: route ?? this.route,
+      route: clearOrder ? null : (route ?? this.route),
       order: clearOrder ? null : (order ?? this.order),
       carIcon: carIcon ?? this.carIcon,
     );
