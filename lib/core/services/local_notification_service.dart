@@ -5,13 +5,24 @@ class LocalNotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin;
 
   LocalNotificationService(this._notificationsPlugin);
-  void init() {
+  Future<void> init() async {
     const AndroidInitializationSettings android = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
     const InitializationSettings settings = InitializationSettings(
       android: android,
     );
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'Go Notification', // channel id
+      'Trip Reminder', // channel name
+      importance: Importance.max,
+    );
+    await _notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(channel);
+
     _notificationsPlugin.initialize(settings: settings);
   }
 
@@ -22,8 +33,8 @@ class LocalNotificationService {
       body: message.notification?.body ?? '',
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
-          'Go Notification',
-          'Trip Reminder',
+          'Go Notification', // channel id
+          'Trip Reminder', // channel name
           icon: '@mipmap/ic_launcher',
           importance: Importance.max,
           priority: Priority.max,

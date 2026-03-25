@@ -98,16 +98,16 @@ class _HomePageState extends State<HomePage> {
                                   child: ListTile(
                                     title: Text(
                                       '${StringManager.captinTrip} : ${state.order!.driverName ?? 'Searching for driver...'}',
-                                      style: const TextStyle(
-                                        fontSize: 16,
+                                      style: TextStyle(
+                                        fontSize: FontSize.s12,
                                         fontWeight: FontWeight.w600,
                                         color: ColorManager.textPrimary,
                                       ),
                                     ),
                                     subtitle: Text(
                                       '${StringManager.phone} : ${state.order!.driverPhone ?? 'Searching'}',
-                                      style: const TextStyle(
-                                        fontSize: 14,
+                                      style: TextStyle(
+                                        fontSize: FontSize.s12,
                                         fontWeight: FontWeight.w600,
                                         color: ColorManager.textSecondary,
                                       ),
@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.all(20.0),
+                                  padding: const EdgeInsets.only(right: 10),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                                               ? state.tripStatus.name
                                               : "Trying to find driver...",
                                           style: TextStyle(
-                                            fontSize: FontSize.s18,
+                                            fontSize: FontSize.s12,
                                             fontWeight:
                                                 FontWeightManager.semiBold,
                                           ),
