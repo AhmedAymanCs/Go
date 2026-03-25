@@ -9,6 +9,7 @@ import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/constants/image_manager.dart';
 import 'package:go/core/constants/styles_manager.dart';
 import 'package:go/core/constants/trip_keywords.dart';
+import 'package:go/core/services/fcm_service.dart';
 import 'package:go/features/home/data/models/order_model.dart';
 import 'package:go/features/home/data/models/route_prams.dart';
 import 'package:go/features/home/data/repository/repo.dart';
@@ -182,9 +183,11 @@ class HomeCubit extends Cubit<HomeState> {
     final userSession = await _secureStorage.read(
       key: AppConstants.userSession,
     );
+    final fcmToken = await FCMService.getDeviceToken();
     final updatedOrder = order.copyWith(
       passengerName: jsonDecode(userSession!)['name'],
       passengerPhone: jsonDecode(userSession)['phone'],
+      fcmToken: fcmToken,
     );
     final res = await _homeRepository.createOrder(updatedOrder);
     res.fold(

@@ -9,14 +9,16 @@ import 'package:go/core/constants/string_manager.dart';
 import 'package:go/core/di/service_locator.dart';
 import 'package:go/core/router/app_router.dart';
 import 'package:go/core/router/routes.dart';
+import 'package:go/core/services/fcm_service.dart';
 import 'package:go/core/theme/app_theme.dart';
 import 'package:go/core/theme/cubit/cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  intiSetupLocator();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Future.wait([FCMService.init(), dotenv.load(fileName: ".env")]);
+  intiSetupLocator();
+
   runApp(const MyApp());
 }
 
