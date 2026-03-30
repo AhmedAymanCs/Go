@@ -1,18 +1,32 @@
+import java.util.Base64
+
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
     id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val dartDefines = mutableMapOf<String, String>()
+if (project.hasProperty("dart-defines")) {
+    project.property("dart-defines")
+        .toString()
+        .split(",")
+        .forEach { entry ->
+            val decoded = Base64.getDecoder().decode(entry.trim()).toString(Charsets.UTF_8)
+            val pair = decoded.split("=")
+            if (pair.size == 2) {
+                dartDefines[pair[0]] = pair[1]
+            }
+        }
 }
 
 android {
     namespace = "com.example.go"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-    useLibrary("org.apache.http.legacy")  
+    useLibrary("org.apache.http.legacy")
+
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
@@ -25,24 +39,21 @@ android {
 
     defaultConfig {
         multiDexEnabled = true
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.go"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["MAPS_API_KEY"] = dartDefines["MAPS_API_KEY"] ?: ""
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
 }
+
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     implementation("androidx.window:window:1.0.0")
