@@ -18,9 +18,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  final HomeRepository _homeRepository;
-  final FlutterSecureStorage _secureStorage;
-  HomeCubit(this._homeRepository, this._secureStorage) : super(HomeState());
+  final HomeRepository homeRepository;
+  final FlutterSecureStorage secureStorage;
+  final FCMService fcmService;
+  HomeCubit({
+    required this.homeRepository,
+    required this.secureStorage,
+    required this.fcmService,
+  }) : super(HomeState());
 
   StreamSubscription<Position>? _positionStream;
   StreamSubscription<OrderModel>? _orderStream;
@@ -71,7 +76,7 @@ class HomeCubit extends Cubit<HomeState> {
     if (query.isEmpty || query.length < 3) {
       emit(state.copyWith(places: []));
     } else {
-      final res = await _homeRepository.searchPlaces(query);
+      final res = await homeRepository.searchPlaces(query);
       res.fold(
         (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
         (places) =>
@@ -146,7 +151,7 @@ class HomeCubit extends Cubit<HomeState> {
     if (state.position == null) return;
     emit(state.copyWith(polylines: {}));
     moveTo(destination, zoom: 12);
-    final res = await _homeRepository.getRouteCoordinates(
+    final res = await homeRepository.getRouteCoordinates(
       RoutePrams(
         destination: destination,
         position: LatLng(state.position!.latitude, state.position!.longitude),
@@ -172,7 +177,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<String> reverseGeocoding(LatLng position) async {
-    final res = await _homeRepository.reverseGeocoding(position);
+    final res = await homeRepository.reverseGeocoding(position);
     return res.fold((error) {
       emit(state.copyWith(error: error, status: HomeStatus.error));
       return 'Unknown';
@@ -180,16 +185,15 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> createOrder(OrderModel order) async {
-    final userSession = await _secureStorage.read(
-      key: AppConstants.userSession,
-    );
-    final fcmToken = await FCMService.getDeviceToken();
+    emit(state.copyWith(status: HomeStatus.loading));
+    final userSession = await secureStorage.read(key: AppConstants.userSession);
+    final fcmToken = await fcmService.getDeviceToken();
     final updatedOrder = order.copyWith(
       passengerName: jsonDecode(userSession!)['name'],
       passengerPhone: jsonDecode(userSession)['phone'],
       fcmToken: fcmToken,
     );
-    final res = await _homeRepository.createOrder(updatedOrder);
+    final res = await homeRepository.createOrder(updatedOrder);
     res.fold(
       (error) {
         emit(state.copyWith(error: error, status: HomeStatus.error));
@@ -209,7 +213,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(status: HomeStatus.loading));
     _orderStream?.cancel();
     emit(state.copyWith(tripStatus: TripStatus.cancelled));
-    final res = await _homeRepository.cancelOrder(state.order!.id!);
+    final res = await homeRepository.cancelOrder(state.order!.id!);
     res.fold(
       (error) => emit(state.copyWith(error: error, status: HomeStatus.error)),
       (_) {
@@ -219,7 +223,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> listenToOrder(String orderId) async {
-    final res = await _homeRepository.listenToOrder(orderId);
+    final res = await homeRepository.listenToOrder(orderId);
     bool retry = true;
 
     res.fold(
@@ -236,17 +240,21 @@ class HomeCubit extends Cubit<HomeState> {
             );
           } else if (order.status == TripKeywords.driverArrived) {
             emit(state.copyWith(tripStatus: TripStatus.arrived, order: order));
-            _updateDriverMarker(
-              LatLng(order.driverLat!, order.driverLng!),
-              order.driverHeading,
-            );
+            if (order.driverLat != null && order.driverLng != null) {
+              _updateDriverMarker(
+                LatLng(order.driverLat!, order.driverLng!),
+                order.driverHeading,
+              );
+            }
           } else if (order.status == TripKeywords.inProgress) {
             if (retry) {
               emit(
                 state.copyWith(
                   tripStatus: TripStatus.inProgress,
                   order: order,
-                  markers: {state.markers.first},
+                  markers: state.markers.isNotEmpty
+                      ? {state.markers.first}
+                      : {},
                 ),
               );
               retry = false;
@@ -257,7 +265,7 @@ class HomeCubit extends Cubit<HomeState> {
                 tripStatus: TripStatus.cancelled,
                 order: order,
                 polylines: {},
-                markers: {state.markers.last},
+                markers: state.markers.isNotEmpty ? {state.markers.last} : {},
               ),
             );
             _orderStream?.cancel();

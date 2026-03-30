@@ -7,6 +7,7 @@ import 'package:go/core/constants/color_manager.dart';
 import 'package:go/core/constants/font_manager.dart';
 import 'package:go/core/constants/string_manager.dart';
 import 'package:go/core/di/service_locator.dart';
+import 'package:go/core/services/fcm_service.dart';
 import 'package:go/core/widgets/cutom_form_field.dart';
 import 'package:go/core/widgets/logo_with_text.dart';
 import 'package:go/features/home/data/models/order_model.dart';
@@ -41,9 +42,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          HomeCubit(getIt<HomeRepository>(), getIt<FlutterSecureStorage>())
-            ..init(context),
+      create: (context) => HomeCubit(
+        homeRepository: getIt<HomeRepository>(),
+        secureStorage: getIt<FlutterSecureStorage>(),
+        fcmService: getIt<FCMService>(),
+      )..init(context),
       child: BlocConsumer<HomeCubit, HomeState>(
         listener: (context, state) {
           if (state.status == HomeStatus.error) {

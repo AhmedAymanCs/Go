@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go/core/constants/app_constants.dart';
+import 'package:go/core/services/fcm_service.dart';
 import 'package:go/core/services/local_notification_service.dart';
 import 'package:go/features/home/data/data_source/data_source.dart';
 import 'package:go/features/home/data/repository/repo.dart';
@@ -87,4 +88,8 @@ void _setupNotificationServiceLocator() {
     () => LocalNotificationService(getIt<FlutterLocalNotificationsPlugin>()),
   );
   getIt<LocalNotificationService>().init();
+
+  getIt.registerLazySingleton<FCMService>(
+    () => FCMService(getIt<LocalNotificationService>()),
+  );
 }

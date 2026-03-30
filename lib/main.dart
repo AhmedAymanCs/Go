@@ -15,9 +15,12 @@ import 'package:go/core/theme/cubit/cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await Future.wait([FCMService.init(), dotenv.load(fileName: ".env")]);
   intiSetupLocator();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Future.wait([
+    getIt<FCMService>().init(),
+    dotenv.load(fileName: ".env"),
+  ]);
 
   runApp(const MyApp());
 }
